@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Sayt - Kursor Animatsiyasi</title>
+    <style>
+        :root {
+            --primary: #4e54c8;
+            --secondary: #8f94fb;
+            --accent: #4ade80;
+            --correct: #10b981;
+            --wrong: #4e54c8;
+            --neutral: #f3f4f6;
+            --dark: #1f2937;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f9fafb;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            color: var(--dark);
+        }
+        
+        header {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            z-index: 10;
+        }
+        
+        header h1 {
+            font-size: 1.8rem;
+            font-weight: 600;
+        }
+        
+        main {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+            position: relative;
+        }
+        
+        .quiz-container {
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.07);
+            width: 100%;
+            max-width: 800px;
+            padding: 2rem;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .question {
+            font-size: 1.4rem;
+            font-weight: 500;
+            margin-bottom: 1.5rem;
+            color: var(--dark);
+        }
+        
+        .options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+        
+        .option {
+            padding: 1rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+        }
+        
+        .option:hover {
+            border-color: var(--primary);
+            background-color: rgba(78, 84, 200, 0.05);
+        }
+        
+        .option-prefix {
+            font-weight: bold;
+            color: var(--primary);
+            margin-right: 0.5rem;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background-color: rgba(78, 84, 200, 0.1);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .buttons {
+            margin-top: 2rem;
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        button {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 6px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .next-btn {
+            background-color: var(--primary);
+            color: white;
+        }
+        
+        .next-btn:hover {
+            background-color: #3c44b1;
+        }
+        
+        /* Kursor animatsiya */
+        .cursor-effect {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+        
+        .symbol {
+            position: absolute;
+            font-size: 24px;
+            font-weight: bold;
+            opacity: 0;
+            transform: translateY(0);
+            pointer-events: none;
+            animation: float 1.5s ease-out forwards;
+            text-shadow: 0 0 5px rgba(0,0,0,0.3);
+        }
+        
+        @keyframes float {
+            0% {
+                opacity: 0.7;
+                transform: translateY(0);
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(-70px);
+            }
+        }
+        
+        /* Quiz sembollari burchi */
+        .floating-symbols {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: 0;
+        }
+        
+        .quiz-symbol {
+            position: absolute;
+            color: rgba(78, 84, 200, 0.07);
+            font-size: 90px;
+            font-weight: bold;
+            user-select: none;
+            z-index: 0;
+            animation: symbolFloat 15s linear infinite;
+        }
+        
+        @keyframes symbolFloat {
+            0% {
+                transform: translateY(110%) rotate(0deg);
+                opacity: 0.1;
+            }
+            50% {
+                opacity: 0.2;
+            }
+            100% {
+                transform: translateY(-10%) rotate(20deg);
+                opacity: 0;
+            }
+        }
+        
+        /* Media queries */
+        @media (max-width: 768px) {
+            .options {
+                grid-template-columns: 1fr;
+            }
+            
+            .quiz-container {
+                padding: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="cursor-effect" id="cursorEffect"></div>
+    <div class="floating-symbols" id="floatingSymbols"></div>
+    
+    <header>
+        <h1>Quiz Platformasi</h1>
+    </header>
+    
+    <main>
+        <div class="quiz-container">
+            <div class="question">
+                O'zbekistonning poytaxti qaysi shahar?
+            </div>
+            
+            <div class="options">
+                <div class="option">
+                    <span class="option-prefix">A</span>
+                    <span>Toshkent</span>
+                </div>
+                <div class="option">
+                    <span class="option-prefix">B</span>
+                    <span>Samarqand</span>
+                </div>
+                <div class="option">
+                    <span class="option-prefix">C</span>
+                    <span>Buxoro</span>
+                </div>
+                <div class="option">
+                    <span class="option-prefix">D</span>
+                    <span>Namangan</span>
+                </div>
+            </div>
+            
+            <div class="buttons">
+                <button>Oldingi</button>
+                <button class="next-btn">Keyingi</button>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const cursorEffect = document.getElementById('cursorEffect');
+            const floatingSymbols = document.getElementById('floatingSymbols');
+            const quizContainer = document.querySelector('.quiz-container');
+            const options = document.querySelectorAll('.option');
+            
+            // Quiz-ga oid simvollar
+            const quizSymbols = ['?', '✓', '✗', '!', '✏️', '📚', '🎓', '🧠'];
+            const colors = ['#4e54c8', '#8f94fb', '#4ade80', '#10b981', '#ef4444', '#60a5fa'];
+            
+            // Kursorga oid effektlar
+            document.addEventListener('mousemove', (e) => {
+                // Har doim ham simvol hosil qilmaslik uchun
+                if (Math.random() > 0.92) {
+                    createSymbol(e.clientX, e.clientY);
+                }
+            });
+            
+            // Fonda suzuvchi simvollar
+            createFloatingSymbols();
+            
+            // Option ustiga bosilganda
+            options.forEach(option => {
+                option.addEventListener('click', (e) => {
+                    // Barcha tanlanmagan holatga keltirish
+                    options.forEach(opt => {
+                        opt.style.borderColor = '#e5e7eb';
+                        opt.style.backgroundColor = 'transparent';
+                    });
+                    
+                    // Tanlangan option stilini o'zgartirish
+                    option.style.borderColor = 'var(--primary)';
+                    option.style.backgroundColor = 'rgba(78, 84, 200, 0.05)';
+                    
+                    // Kursorni option ustiga qo'yilganda simvollarni ko'proq yaratish
+                    for (let i = 0; i < 8; i++) {
+                        setTimeout(() => {
+                            createSymbol(
+                                e.clientX + (Math.random() - 0.5) * 80, 
+                                e.clientY + (Math.random() - 0.5) * 80
+                            );
+                        }, i * 70);
+                    }
+                });
+            });
+            
+            // Simvol yaratish funktsiasi
+            function createSymbol(x, y) {
+                const symbol = document.createElement('div');
+                symbol.className = 'symbol';
+                
+                // Tasodifiy simvol tanlash
+                const randomSymbol = quizSymbols[Math.floor(Math.random() * quizSymbols.length)];
+                symbol.textContent = randomSymbol;
+                
+                // Tasodifiy rang tanlash
+                const randomColor = colors[Math.floor(Math.random() * colors.length)];
+                symbol.style.color = randomColor;
+                
+                // Tasodifiy yo'nalish va tezlik
+                const randomRotate = (Math.random() - 0.5) * 60;
+                const randomDuration = Math.random() * 0.5 + 1; // 1-1.5s
+                
+                symbol.style.left = `${x}px`;
+                symbol.style.top = `${y}px`;
+                symbol.style.transform = `rotate(${randomRotate}deg)`;
+                symbol.style.animationDuration = `${randomDuration}s`;
+                
+                cursorEffect.appendChild(symbol);
+                
+                // Animatsiya tugagandan so'ng elementni o'chirish
+                setTimeout(() => {
+                    if (symbol.parentNode === cursorEffect) {
+                        cursorEffect.removeChild(symbol);
+                    }
+                }, randomDuration * 1000);
+            }
+            
+            // Fonda suzuvchi simvollar yaratish funktsiasi
+            function createFloatingSymbols() {
+                // Avval oldingilarini tozalash
+                floatingSymbols.innerHTML = '';
+                
+                // Ekran o'lchamiga qarab simvollar sonini aniqlash
+                const symbolCount = Math.floor(window.innerWidth / 100);
+                
+                for (let i = 0; i < symbolCount; i++) {
+                    const symbol = document.createElement('div');
+                    symbol.className = 'quiz-symbol';
+                    
+                    // Tasodifiy simvol
+                    const randomSymbol = quizSymbols[Math.floor(Math.random() * quizSymbols.length)];
+                    symbol.textContent = randomSymbol;
+                    
+                    // Tasodifiy joylashuv
+                    const randomLeft = Math.random() * 100;
+                    const randomDelay = Math.random() * 15;
+                    const randomDuration = Math.random() * 10 + 10; // 10-20s
+                    
+                    symbol.style.left = `${randomLeft}%`;
+                    symbol.style.animationDelay = `${randomDelay}s`;
+                    symbol.style.animationDuration = `${randomDuration}s`;
+                    
+                    floatingSymbols.appendChild(symbol);
+                }
+            }
+            
+            // Oyna o'lchamlari o'zgarganda simvollarni qayta yaratish
+            window.addEventListener('resize', createFloatingSymbols);
+        });
+    </script>
+</body>
+</html>
